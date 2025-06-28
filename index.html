@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Responsive Navbar</title>
+  </head>
+  <body>
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+      <div class="navbar-logo" tabindex="0" aria-label="Trivago Logo">
+        <span class="red">tri</span>
+        <span class="blue">va</span>
+        <span class="orange">go</span>
+      </div>
+
+      <div class="navbar-links" id="navbarLinks">
+        <div class="navbar-link" tabindex="0" aria-label="Favorites">
+          <svg
+            class="icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 
+            4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 
+            14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 
+            6.86-8.55 11.54L12 21.35z"
+            ></path>
+          </svg>
+          Favorites
+        </div>
+        <div
+          class="navbar-link"
+          tabindex="0"
+          aria-label="Language and Currency selection"
+        >
+          <svg
+            class="icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2zm5.93 
+            6H13a18.512 18.512 0 0 0-1.2-3.2 8.094 8.094 0 0 1 6.13 3.2zM12
+            4a16.839 16.839 0 0 1 1.7 4H10.3A16.837 16.837 0 0 1 12 4zM7.07 
+            8h2.93v3.07H7.07zm9.86 0h2.93a8.1 8.1 0 0 1 0 6 9.953 9.953 0 
+            0 1-2.75-4.83zm-9.86 8h2.93v3.07H7.07zm2.93 
+            3.93a16.832 16.832 0 0 1-1.7-4h3.4a16.839 16.839 0 0 1-1.7 
+            4zM12 20a18.646 18.646 0 0 0 1.2-3.2h3.67a8.688 8.688 0 0 1-6.15 
+            3.13zm-4.43-6.87v-1.48l1.45 1.8a14.384 14.384 0 0 1-1.45-.32z"
+            ></path>
+          </svg>
+          EN · ₹
+        </div>
+        <div
+          class="navbar-link"
+          tabindex="0"
+          aria-label="Log in to your account"
+        >
+          <svg
+            class="icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm-6 
+            8a6 6 0 0 1 12 0z"
+            ></path>
+          </svg>
+          Log in
+        </div>
+        <div
+          class="navbar-link menu-label"
+          tabindex="0"
+          aria-label="Open menu"
+          id="menuToggleBtn"
+        >
+          <svg
+            class="icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              d="M4 6h16M4 12h16M4 18h16"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          Menu
+        </div>
+      </div>
+
+      <!-- Hamburger menu for mobile -->
+      <button
+        class="hamburger"
+        aria-label="Toggle menu"
+        aria-expanded="false"
+        aria-controls="mobileMenu"
+        id="hamburgerBtn"
+        type="button"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div
+      class="mobile-menu"
+      id="mobileMenu"
+      aria-label="Mobile navigation menu"
+    >
+      <div class="navbar-link" tabindex="0" aria-label="Favorites">
+        <svg
+          class="icon"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 
+          4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 
+          14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 
+          6.86-8.55 11.54L12 21.35z"
+          ></path>
+        </svg>
+        Favorites
+      </div>
+      <div
+        class="navbar-link"
+        tabindex="0"
+        aria-label="Language and Currency selection"
+      >
+        <svg
+          class="icon"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2zm5.93 
+          6H13a18.512 18.512 0 0 0-1.2-3.2 8.094 8.094 0 0 1 6.13 3.2zM12
+          4a16.839 16.839 0 0 1 1.7 4H10.3A16.837 16.837 0 0 1 12 4zM7.07 
+          8h2.93v3.07H7.07zm9.86 0h2.93a8.1 8.1 0 0 1 0 6 9.953 9.953 0 
+          0 1-2.75-4.83zm-9.86 8h2.93v3.07H7.07zm2.93 
+          3.93a16.832 16.832 0 0 1-1.7-4h3.4a16.839 16.839 0 0 1-1.7 
+          4zM12 20a18.646 18.646 0 0 0 1.2-3.2h3.67a8.688 8.688 0 0 1-6.15 
+          3.13zm-4.43-6.87v-1.48l1.45 1.8a14.384 14.384 0 0 1-1.45-.32z"
+          ></path>
+        </svg>
+        EN · ₹
+      </div>
+      <div class="navbar-link" tabindex="0" aria-label="Log in to your account">
+        <svg
+          class="icon"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm-6 
+          8a6 6 0 0 1 12 0z"
+          ></path>
+        </svg>
+        Log in
+      </div>
+      <div class="navbar-link" tabindex="0" aria-label="Menu">Menu</div>
+    </div>
+  </body>
+  <script src="./script.js"></script>
+</html>
