@@ -1,7 +1,7 @@
 `markdown
 # 🏨 Trivigo Hotel Search UI (Frontend Only)
 
-Welcome to the **Trivigo UI Clone Project** – a frontend-only hotel search prototype built using **HTML, Tailwind CSS, and JavaScript**.
+Welcome to the **Trivigo UI Clone Project** – a frontend-only hotel search prototype built using **HTML, CSS, and JavaScript**.
 
 This README will help you understand the correct workflow for contributing to this project efficiently, without conflicts or confusion.
 
@@ -92,7 +92,7 @@ After pushing your code:
 ## 🛠 Tech Stack Used
 
 * **HTML5** – Markup structure
-* **Tailwind CSS** – Styling & responsiveness
+* **CSS** – Styling & responsiveness
 * **JavaScript (Vanilla)** – DOM logic and localStorage
 
 ---
