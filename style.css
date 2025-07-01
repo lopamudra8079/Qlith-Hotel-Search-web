@@ -124,10 +124,13 @@ svg.icon {
 
 .hamburger span {
   display: block;
-  height: 3px;
-  background-color: var(--text-color);
+  height: 30px;
+  background-color: crimson;
+  color: white;
   border-radius: 2px;
   transition: all var(--transition-speed);
+  width: 40px;
+  margin-top: 20px;
 }
 
 .hamburger:hover span {
