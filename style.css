@@ -125,8 +125,7 @@ svg.icon {
 .hamburger span {
   display: block;
   height: 30px;
-  background-color: crimson;
-  color: white;
+  color: black;
   border-radius: 2px;
   transition: all var(--transition-speed);
   width: 40px;
