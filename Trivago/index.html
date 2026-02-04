@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏨 Trivago Hotel Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#dc2626',
+                        secondary: '#0077ff',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Auth Guard Overlay -->
+    <div id="authGuard" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <div class="text-3xl font-bold mb-4">
+                    <img src="footer/Trivago-Logo.png" alt="trivago logo" class="h-14">
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900">Welcome to Trivago</h2>
+                <p class="text-gray-600 mt-2">Please login or register to continue</p>
+            </div>
+            <div class="space-y-4">
+                <button onclick="showLogin()"
+                    class="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition">
+                    Login
+                </button>
+                <button onclick="showRegister()"
+                    class="w-full border border-primary text-primary py-3 rounded-lg font-semibold hover:bg-red-50 transition">
+                    Register
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="text-2xl font-bold cursor-pointer" onclick="window.location.reload()">
+                        <img src="footer/Trivago-Logo.png" alt="trivago logo" class="h-14">
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <button class="flex items-center space-x-2 text-gray-700 hover:text-primary">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                        </svg>
+                        <span>Favorites</span>
+                    </button>
+                    <button class="flex items-center space-x-2 text-gray-700 hover:text-primary">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2zm5.93 6H13a18.512 18.512 0 0 0-1.2-3.2 8.094 8.094 0 0 1 6.13 3.2z" />
+                        </svg>
+                        <span>EN · ₹</span>
+                    </button>
+                    <div id="userProfile" class="relative">
+                        <!-- User profile will be inserted here -->
+                    </div>
+                </div>
+                <button id="mobileMenuBtn" class="md:hidden" onclick="toggleMobileMenu()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-white border-t">
+        <div class="px-4 py-2 space-y-2">
+            <button class="block w-full text-left py-2 text-gray-700">Favorites</button>
+            <button class="block w-full text-left py-2 text-gray-700">EN · ₹</button>
+            <div id="mobileUserProfile">
+                <!-- Mobile user profile will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- compare Section -->
+    <header class="bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    Save up to 55% on your next hotel stay
+                </h1>
+                <p class="text-xl text-gray-600 mb-8">
+                    We compare hotel prices from over 100 sites
+                </p>
+
+                <!-- Search Form -->
+                <form id="searchForm" class="max-w-6xl mx-auto" onsubmit="handleSearch(event)">
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <!-- Destination -->
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Destination</label>
+                                <div class="relative">
+                                    <input type="text" id="cityInput" placeholder="Mumbai" required
+                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                                        <span class="text-gray-500">🏨</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Check-in -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Check-in</label>
+                                <input type="date" id="checkinDate" required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+
+                            <!-- Check-out -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Check-out</label>
+                                <input type="date" id="checkoutDate" required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+
+                            <!-- Guests & Rooms -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Guests & Rooms</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <select id="numGuests" required
+                                        class="px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <option value="1">1 Guest</option>
+                                        <option value="2" selected>2 Guests</option>
+                                        <option value="3">3 Guests</option>
+                                        <option value="4">4 Guests</option>
+                                        <option value="5">5+ Guests</option>
+                                    </select>
+                                    <select id="numRooms" required
+                                        class="px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <option value="1" selected>1 Room</option>
+                                        <option value="2">2 Rooms</option>
+                                        <option value="3">3 Rooms</option>
+                                        <option value="4">4+ Rooms</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit"
+                            class="w-full md:w-auto mt-6 bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-700 transition">
+                            Search Hotels
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Partners -->
+                <div class="mt-8">
+                    <p class="text-gray-600 mb-4">Compare prices from</p>
+                    <div class="flex flex-wrap justify-center items-center gap-6">
+
+
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Agoda_transparent_logo.png"
+                            alt="Agoda" class="w-14 h-10">
+                        <img src="https://www.hotelierindia.com/cloud/2021/11/22/4MBmx38h-New-Hotels.jpg"
+                            alt="Hotels.com" class="w-14 h-10">
+                        <img src="https://1000logos.net/wp-content/uploads/2021/05/Booking.Com-logo.png"
+                            alt="Booking.com" class="w-14 h-10">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/61/Makemytrip_logo.svg"
+                            alt="Makemytrip" class="w-14 h-10">
+                        <img src="https://static.cdnlogo.com/logos/a/13/all-accor-live-limitless-thumb.png"
+                            alt="Accor All logo" class="w-14 h-10">
+                        <img src="https://cdn.prod.website-files.com/67a6ba056d889c1e78426c59/67a6ba056d889c1e784294b0_63f53beaf0d0525d2609cb62_trip_app.jpeg"
+                            alt="Trip.com" class="w-14 h-10">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/56/OYO_Rooms_Logo.jpg" alt="OYO"
+                            class="w-14 h-10">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Results -->
+    <section id="searchResults" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+            <div>
+                <h2 id="resultsTitle" class="text-2xl font-bold text-gray-900">Search Results</h2>
+                <p id="resultsCount" class="text-gray-600"></p>
+            </div>
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                <select id="sortFilter" class="px-4 py-2 border border-gray-300 rounded-lg" onchange="applyFilters()">
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="rating">Rating</option>
+                    <option value="name">Name</option>
+                </select>
+                <select id="priceFilter" class="px-4 py-2 border border-gray-300 rounded-lg" onchange="applyFilters()">
+                    <option value="all">All Prices</option>
+                    <option value="budget">Under ₹10,000</option>
+                    <option value="mid">₹10,000 - ₹20,000</option>
+                    <option value="luxury">Above ₹20,000</option>
+                </select>
+            </div>
+        </div>
+        <div id="hotelResults" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
+            <!-- Hotel cards will be inserted here -->
+        </div>
+        <div id="mapContainer" class="bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-xl font-bold mb-4">Hotel Locations</h3>
+            <div id="map" class="h-96 rounded-lg z-0"></div>
+        </div>
+    </section>
+
+    <!-- Default Hotels -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">Hot hotel deals right now</h2>
+            <a href="#" class="text-primary font-semibold hover:underline">See more deals →</a>
+        </div>
+        <div id="defaultHotels" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Default hotel cards will be inserted here -->
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="bg-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="w-60 h-60 flex items-center justify-center mx-auto">
+                        <img src="main/search.svg" alt="search" srcset="">
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Search simply</h3>
+                    <p class="text-gray-600">Easily search through millions of hotels in seconds</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-60 h-60 flex items-center justify-center mx-auto">
+                        <img src="main/compare.svg" alt="compare">
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Compare confidently</h3>
+                    <p class="text-gray-600">Compare hotel prices from over 100 sites at once</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-60 h-60 flex items-center justify-center mx-auto">
+                        <img src="main/save.svg" alt="save">
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Save big</h3>
+                    <p class="text-gray-600">Discover a great deal to book on our partner sites</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Popular Searches -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Popular searches</h2>
+        <div class="flex space-x-6 mb-6">
+            <button id="citiesTab" onclick="showTab('cities')"
+                class="pb-2 border-b-2 border-primary text-primary font-semibold">Cities</button>
+            <button id="destinationsTab" onclick="showTab('destinations')"
+                class="pb-2 text-gray-600 font-semibold">Destinations</button>
+        </div>
+        <div id="citiesContent" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <!-- Cities will be inserted here -->
+        </div>
+        <div id="destinationsContent" class="hidden grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <!-- Destinations will be inserted here -->
+        </div>
+    </section>
+
+    <!-- Modals -->
+    <!-- Login Modal -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg max-w-md w-full mx-4">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Login</h2>
+                    <button onclick="closeModal('loginModal')" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" id="loginEmail" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                            <input type="password" id="loginPassword" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition">
+                            Login
+                        </button>
+                    </div>
+                </form>
+                <p class="text-center mt-4 text-gray-600">
+                    Don't have an account?
+                    <button onclick="showRegister()"
+                        class="text-primary font-semibold hover:underline">Register</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg max-w-md w-full mx-4">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Register</h2>
+                    <button onclick="closeModal('registerModal')" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <form id="registerForm" onsubmit="handleRegister(event)">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                            <input type="text" id="registerName" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" id="registerEmail" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                            <input type="tel" id="registerPhone" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                            <input type="password" id="registerPassword" required minlength="6"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition">
+                            Register
+                        </button>
+                    </div>
+                </form>
+                <p class="text-center mt-4 text-gray-600">
+                    Already have an account?
+                    <button onclick="showLogin()" class="text-primary font-semibold hover:underline">Login</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-screen overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Book Your Stay</h2>
+                    <button onclick="closeModal('bookingModal')" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="selectedHotelInfo" class="mb-6">
+                    <!-- Selected hotel info will be inserted here -->
+                </div>
+                <form id="bookingForm" onsubmit="handleBooking(event)">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Check-in Date</label>
+                            <input type="date" id="bookingCheckin" required onchange="updateBookingSummary()"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Check-out Date</label>
+                            <input type="date" id="bookingCheckout" required onchange="updateBookingSummary()"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Guests</label>
+                            <select id="bookingGuests" required onchange="updateBookingSummary()"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option value="1">1 Guest</option>
+                                <option value="2" selected>2 Guests</option>
+                                <option value="3">3 Guests</option>
+                                <option value="4">4 Guests</option>
+                                <option value="5">5+ Guests</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Rooms</label>
+                            <select id="bookingRooms" required onchange="updateBookingSummary()"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option value="1" selected>1 Room</option>
+                                <option value="2">2 Rooms</option>
+                                <option value="3">3 Rooms</option>
+                                <option value="4">4+ Rooms</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Special Requests</label>
+                        <textarea id="specialRequests" rows="3" placeholder="Any special requests..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+                    </div>
+                    <div id="bookingSummary" class="bg-gray-50 rounded-lg p-4 mb-6">
+                        <!-- Booking summary will be inserted here -->
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition">
+                        Proceed to Payment
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg max-w-md w-full mx-4">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Payment Method</h2>
+                    <button onclick="closeModal('paymentModal')" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div class="border rounded-lg p-4 cursor-pointer hover:bg-gray-50" onclick="selectPayment('upi')">
+                        <div class="flex items-center">
+                            <input type="radio" name="payment" value="upi" class="mr-3">
+                            <div>
+                                <h3 class="font-semibold">UPI Payment</h3>
+                                <p class="text-sm text-gray-600">Pay using Google Pay, PhonePe, Paytm</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border rounded-lg p-4 cursor-pointer hover:bg-gray-50" onclick="selectPayment('card')">
+                        <div class="flex items-center">
+                            <input type="radio" name="payment" value="card" class="mr-3">
+                            <div>
+                                <h3 class="font-semibold">Credit/Debit Card</h3>
+                                <p class="text-sm text-gray-600">Visa, Mastercard, Rupay</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
+                        onclick="selectPayment('netbanking')">
+                        <div class="flex items-center">
+                            <input type="radio" name="payment" value="netbanking" class="mr-3">
+                            <div>
+                                <h3 class="font-semibold">Net Banking</h3>
+                                <p class="text-sm text-gray-600">All major banks supported</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button id="confirmPayment" onclick="confirmPayment()"
+                    class="w-full mt-6 bg-primary text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition opacity-50"
+                    disabled>
+                    Confirm Payment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg max-w-md w-full mx-4">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">My Profile</h2>
+                    <button onclick="closeModal('profileModal')" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="profileContent">
+                    <!-- Profile content will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking History Modal -->
+    <div id="historyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg max-w-4xl w-full mx-4 max-h-screen overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Booking History</h2>
+                    <button onclick="closeModal('historyModal')" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="historyContent">
+                    <!-- Booking history will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="text-2xl font-bold mb-4">
+                        <img src="footer/Trivago-Logo.png" alt="trivago logo" class="h-14">
+                    </div>
+                    <p class="text-gray-400">Compare hotel prices from over 100 sites and save up to 55%</p>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-4">Company</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">About Us</a></li>
+                        <li><a href="#" class="hover:text-white">Careers</a></li>
+                        <li><a href="#" class="hover:text-white">Press</a></li>
+                        <li><a href="#" class="hover:text-white">Investor Relations</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-4">Help</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">Customer Support</a></li>
+                        <li><a href="#" class="hover:text-white">Terms & Conditions</a></li>
+                        <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white">Cookie Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-2">Follow Us</h3>
+                    <div class="flex space-x-1">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <img src="footer/facebook logo.png" class="w-6 h-6" alt="">
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <img src="footer/X_logo.png" class="w-6 h-6" alt="">
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <img src="./footer/insta logo.png" alt="" class="w-6 h-6">
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <img src="footer/youtubelgo.png" class="w-6 h-6" alt="">
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <img src="./footer/INLOGO.png" alt="" class="w-6 h-6">
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Trivago. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="test.js"></script>
+</body>
+
+</html>
